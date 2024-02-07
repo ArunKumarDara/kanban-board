@@ -21,6 +21,7 @@ removeBtn.addEventListener("click", () => {
     window.alert("Delete button has been activated");
     removeBtn.style.color = "red";
   } else {
+    window.alert("Delete button has been deactivated");
     removeBtn.style.color = "white";
   }
 });
@@ -62,4 +63,10 @@ const createTicket = (text) => {
     <i class="fa-solid fa-lock"></i>
   </div>`;
   mainTicketCont.appendChild(ticketCont);
+
+  ticketCont.addEventListener("click", () => {
+    if (removeTaskFlag === true) {
+      ticketCont.remove();
+    }
+  });
 };
