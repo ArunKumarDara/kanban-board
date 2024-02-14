@@ -2,22 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Demo Kanban Board</title>
+    <title>KanBan Board</title>
+    <link rel="stylesheet" href="./style.css" />
     <script src="https://unpkg.com/shortid-dist@1.0.5/dist/shortid-2.2.13.min.js"></script>
     <script
-      src="https://kit.fontawesome.com/e9ae8e330f.js"
+      src="https://kit.fontawesome.com/d9edf17dc9.js"
       crossorigin="anonymous"
     ></script>
-    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
+    <!-- ToolBox Creation -->
     <div class="toolbox-cont">
       <div class="toolbox-priority-cont">
-        <div class="lightpink color"></div>
-        <div class="lightgreen color"></div>
-        <div class="lightblue color"></div>
-        <div class="black color"></div>
+        <div class="lightpink color">To De Done</div>
+        <div class="lightgreen color">In Progress</div>
+        <div class="lightblue color">Validate</div>
+        <div class="black color">Completed</div>
+      </div>
+      <div class="header">
+        <img src="https://cdn-icons-png.flaticon.com/512/1567/1567073.png" />
+        <h1>KanBan Board</h1>
       </div>
       <div class="action-btn-cont">
         <div class="add-btn">
@@ -28,19 +34,21 @@
         </div>
       </div>
     </div>
+
     <div class="main-ticket-cont"></div>
+    <!-- Ticket Creation -->
     <div class="modal-cont">
       <textarea
         class="textarea-cont"
         placeholder="Enter Your Task Information"
       ></textarea>
-      <dic class="priority-colors-cont">
-        <div class="lightpink priority-color"></div>
-        <div class="lightgreen priority-color"></div>
-        <div class="lightblue priority-color"></div>
-        <div class="black priority-color"></div>
-      </dic>
+      <div class="priority-colors-cont">
+        <div class="lightpink priority-color">To De Done</div>
+        <div class="lightgreen priority-color">In Progress</div>
+        <div class="lightblue priority-color">Validate</div>
+        <div class="black priority-color">Completed</div>
+      </div>
     </div>
-    <script src="./script.js"></script>
   </body>
+  <script src="./script.js"></script>
 </html>

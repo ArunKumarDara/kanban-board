@@ -1,27 +1,166 @@
 const addBtn = document.querySelector(".add-btn");
-const modalContainer = document.querySelector(".modal-cont");
-const textAreaCont = document.querySelector(".textarea-cont");
-const mainTicketCont = document.querySelector(".main-ticket-cont");
+const modalCont = document.querySelector(".modal-cont");
+const mainTicketContainer = document.querySelector(".main-ticket-cont");
+const textArea = document.querySelector(".textarea-cont");
 const allPriorityColor = document.querySelectorAll(".priority-color");
 const removeBtn = document.querySelector(".remove-btn");
+const toolBoxColors = document.querySelectorAll(".color");
 
+let ticketArr = [];
+console.log(ticketArr);
+
+// get the ticket based on ticketId
+const getTicket = (ticketId) => {
+  let ticket = {};
+  for (let i = 0; i < ticketArr.length; i++) {
+    if ((ticketArr[i].ticketId = ticketId)) {
+      ticket = ticketArr[i];
+      break;
+    }
+  }
+  return ticket;
+};
+const handleRemove = (ticket, ticketId) => {
+  ticket.addEventListener("click", () => {
+    if (removeTaskFlag === true) {
+      ticket.remove();
+      const ticketIndex = ticketArr.findIndex((t) => t.ticketId === ticketId);
+      ticketArr.splice(ticketIndex, 1);
+      localStorage.setItem("tasks", JSON.stringify(ticketArr));
+      console.log("after deleting from arr", ticketArr);
+    }
+  });
+};
+
+let lockTicket = "fa-lock";
+let unLockTicket = "fa-lock-open";
+
+const handleLock = (ticket, ticketId) => {
+  const ticketLockElem = ticket.querySelector(".lock");
+  const ticketLockIcon = ticketLockElem.children[0];
+  const ticketTaskArea = ticket.querySelector(".task-area");
+
+  ticketLockIcon.addEventListener("click", () => {
+    if (ticketLockIcon.classList.contains("fa-lock")) {
+      ticketLockIcon.classList.remove("fa-lock");
+      ticketLockIcon.classList.add("fa-lock-open");
+      ticketTaskArea.setAttribute("contenteditable", "true");
+    } else {
+      ticketLockIcon.classList.remove("fa-lock-open");
+      ticketLockIcon.classList.add("fa-lock");
+      ticketTaskArea.setAttribute("contenteditable", "false");
+      const taskToBeUpdated = ticketArr.findIndex(
+        (t) => t.ticketId === ticketId
+      );
+      ticketArr[taskToBeUpdated].ticketInfo = ticketTaskArea.innerText;
+      localStorage.setItem("tasks", JSON.stringify(ticketArr));
+    }
+  });
+};
+
+// Colors Array
+const colors = ["lightpink", "lightgreen", "lightblue", "black"];
+
+const handleColor = (ticket, ticketId) => {
+  let colorBand = ticket.querySelector(".ticket-color");
+  colorBand.addEventListener("click", () => {
+    // we have find color of the band and then index of that color
+    // from colors array and then we need to update color of the band
+    // with next index of color
+    let currentColor = "";
+    for (let idx = 0; idx < colorBand.classList.length; idx++) {
+      if (colorBand.classList[idx] !== "ticket-color") {
+        currentColor = colorBand.classList[idx];
+      }
+    }
+    const currentColorIndex = colors.indexOf(currentColor);
+    const newColor = colors[(currentColorIndex + 1) % colors.length];
+    colorBand.classList.remove(currentColor);
+    colorBand.classList.add(newColor);
+    const taskToBeUpdated = ticketArr.findIndex((t) => t.ticketId === ticketId);
+    ticketArr[taskToBeUpdated].ticketColor = newColor;
+  });
+};
+
+const createTicket = (ticketColor, ticketInfo, ticketUniqueId) => {
+  const ticketId = ticketUniqueId || shortid();
+  const ticketCont = document.createElement("div");
+  ticketCont.setAttribute("class", "ticket-cont");
+  ticketCont.innerHTML = `<div class="${ticketColor} ticket-color"></div>
+  <div class="ticket-id">${ticketId}</div>
+  <div class="task-area">
+    ${ticketInfo}
+  </div>
+  <div class="lock">
+    <i class="fa-solid fa-lock"></i>
+  </div>`;
+  mainTicketContainer.appendChild(ticketCont);
+  if (ticketUniqueId.length <= 0) {
+    ticketArr.push({ ticketId, ticketInfo, ticketColor });
+    localStorage.setItem("tasks", JSON.stringify(ticketArr));
+  }
+  // if you want to add listener to each ticket and remove it
+  handleRemove(ticketCont, ticketId);
+  handleLock(ticketCont, ticketId);
+  handleColor(ticketCont, ticketId);
+};
+
+if (localStorage.getItem("tasks")) {
+  ticketArr = JSON.parse(localStorage.getItem("tasks"));
+  ticketArr.forEach((ticket) =>
+    createTicket(ticket.ticketColor, ticket.ticketInfo, ticket.ticketId)
+  );
+}
+
+for (let i = 0; i < toolBoxColors.length; i++) {
+  toolBoxColors[i].addEventListener("click", () => {
+    // get the selected color from the filter
+    const selectedToolBoxColor = toolBoxColors[i].classList[0];
+
+    // filter the tickets based on the selected color
+    const filteredTickets = ticketArr.filter((ticket) => {
+      return selectedToolBoxColor === ticket.ticketColor;
+    });
+
+    // remove all the selected those are created
+    const allTicket = document.querySelectorAll(".ticket-cont");
+    for (let i = 0; i < allTicket.length; i++) {
+      allTicket[i].remove();
+    }
+
+    // re-create the filtered tickets
+    filteredTickets.forEach((ticket) =>
+      createTicket(ticket.ticketColor, ticket.ticketInfo, ticket.ticketId)
+    );
+  });
+
+  toolBoxColors[i].addEventListener("dblclick", () => {
+    // remove all the selected those are created
+    const allTicket = document.querySelectorAll(".ticket-cont");
+    for (let i = 0; i < allTicket.length; i++) {
+      allTicket[i].remove();
+    }
+    ticketArr.forEach((ticket) =>
+      createTicket(ticket.ticketColor, ticket.ticketInfo, ticket.ticketId)
+    );
+  });
+}
 let addTaskFlag = false;
-let modalPriorityColor = "black";
 let removeTaskFlag = false;
-
-const cleanUpColorSelection = () => {
-  allPriorityColor.forEach((colorEle) => {
-    colorEle.classList.remove("active-status-color");
+let modalPriorityColor = "black";
+const cleanUpColorSelction = () => {
+  allPriorityColor.forEach((currElem) => {
+    currElem.classList.remove("active-status-color");
   });
 };
 
 removeBtn.addEventListener("click", () => {
   removeTaskFlag = !removeTaskFlag;
-  if (removeTaskFlag === true) {
-    window.alert("Delete button has been activated");
+  if (removeTaskFlag == true) {
+    window.alert("Delete Button Has Been Activated");
     removeBtn.style.color = "red";
   } else {
-    window.alert("Delete button has been deactivated");
+    window.alert("Delete Button Has Been Deactivated");
     removeBtn.style.color = "white";
   }
 });
@@ -29,44 +168,28 @@ removeBtn.addEventListener("click", () => {
 addBtn.addEventListener("click", () => {
   addTaskFlag = !addTaskFlag;
   if (addTaskFlag === true) {
-    cleanUpColorSelection();
-    modalContainer.style.display = "flex";
+    cleanUpColorSelction();
+    modalCont.style.display = "flex";
   } else {
-    modalContainer.style.display = "none";
+    modalCont.style.display = "none";
   }
 });
 
-modalContainer.addEventListener("keydown", (e) => {
-  if (e.key === "Shift") {
-    createTicket(textAreaCont.value);
-    modalContainer.style.display = "none";
-    textAreaCont.value = "";
-    cleanUpColorSelection();
+allPriorityColor.forEach((colorElem) => {
+  colorElem.addEventListener("click", (event) => {
+    // clean up the exisiting selected option
+    cleanUpColorSelction();
+    modalPriorityColor = event.target.classList[0];
+    colorElem.classList.add("active-status-color");
+  });
+});
+modalCont.addEventListener("keydown", (event) => {
+  if (event.key === "Alt") {
+    createTicket(modalPriorityColor, textArea.value, "");
+    modalCont.style.display = "none";
+    textArea.value = "";
+    modalPriorityColor = "black";
+    cleanUpColorSelction();
+    addTaskFlag = false;
   }
 });
-
-allPriorityColor.forEach((colorEle) => {
-  colorEle.addEventListener("click", (e) => {
-    cleanUpColorSelection();
-    modalPriorityColor = e.target.classList[0];
-    colorEle.classList.add("active-status-color");
-  });
-});
-
-const createTicket = (text) => {
-  let ticketCont = document.createElement("div");
-  ticketCont.setAttribute("class", "ticket-cont");
-  ticketCont.innerHTML = `<div class="${modalPriorityColor} ticket-color"></div>
-  <div class="ticket-id">${shortid()}</div>
-  <div class="task-area">${text}</div>
-  <div class="lock">
-    <i class="fa-solid fa-lock"></i>
-  </div>`;
-  mainTicketCont.appendChild(ticketCont);
-
-  ticketCont.addEventListener("click", () => {
-    if (removeTaskFlag === true) {
-      ticketCont.remove();
-    }
-  });
-};
